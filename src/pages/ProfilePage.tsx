@@ -37,8 +37,8 @@ export const ProfilePage: React.FC = () => {
         const { count: following } = await api.getFollowingCount(profileData.id);
         setFollowingCount(following || 0);
 
-        if (user && user.id !== profileData.id) {
-          const { data: followingStatus } = await api.checkIsFollowing(user.id, profileData.id);
+        if (user && user.uid !== profileData.id) {
+          const { data: followingStatus } = await api.checkIsFollowing(user.uid, profileData.id);
           setIsFollowing(!!followingStatus);
         }
       } catch (err: any) {
@@ -58,13 +58,13 @@ export const ProfilePage: React.FC = () => {
     }
 
     if (isFollowing) {
-      const { error } = await api.unfollowUser(user.id, profile.id);
+      const { error } = await api.unfollowUser(user.uid, profile.id);
       if (!error) {
         setIsFollowing(false);
         setFollowersCount(prev => prev - 1);
       }
     } else {
-      const { error } = await api.followUser(user.id, profile.id);
+      const { error } = await api.followUser(user.uid, profile.id);
       if (!error) {
         setIsFollowing(true);
         setFollowersCount(prev => prev + 1);
@@ -91,7 +91,7 @@ export const ProfilePage: React.FC = () => {
     );
   }
 
-  const isOwnProfile = user?.id === profile.id;
+  const isOwnProfile = user?.uid === profile.id;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">

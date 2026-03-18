@@ -30,7 +30,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ video, isActive }) => 
 
   useEffect(() => {
     if (user && video.id) {
-      api.checkIsLiked(user.id, video.id).then(({ data }) => setLiked(!!data));
+      api.checkIsLiked(user.uid, video.id).then(({ data }) => setLiked(!!data));
     }
   }, [user, video.id]);
 
@@ -41,13 +41,13 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ video, isActive }) => 
     }
 
     if (liked) {
-      const { error } = await api.unlikeVideo(user.id, video.id);
+      const { error } = await api.unlikeVideo(user.uid, video.id);
       if (!error) {
         setLiked(false);
         setLikesCount((prev: number) => prev - 1);
       }
     } else {
-      const { error } = await api.likeVideo(user.id, video.id);
+      const { error } = await api.likeVideo(user.uid, video.id);
       if (!error) {
         setLiked(true);
         setLikesCount((prev: number) => prev + 1);

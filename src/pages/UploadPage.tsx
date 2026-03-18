@@ -2,7 +2,6 @@ import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/db/api';
-import { supabase } from '@/db/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -53,25 +52,16 @@ export const UploadPage: React.FC = () => {
     try {
       const fileExt = videoFile.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
-      const filePath = `videos/${user.id}/${fileName}`;
+      const filePath = `videos/${user.uid}/${fileName}`;
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('a6j4ohtlmv41_videos_images')
-        .upload(filePath, videoFile, {
-          cacheControl: '3600',
-          upsert: false,
-        });
+      const { data: publicUrl, error: uploadError } = await api.uploadFile(videoFile, filePath);
 
       if (uploadError) throw uploadError;
       setProgress(70);
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('a6j4ohtlmv41_videos_images')
-        .getPublicUrl(filePath);
-
       const { error: dbError } = await api.uploadVideo({
-        user_id: user.id,
-        video_url: publicUrl,
+        user_id: user.uid,
+        video_url: publicUrl!,
         title,
         description,
         thumbnail_url: publicUrl, // Using video as thumbnail for now

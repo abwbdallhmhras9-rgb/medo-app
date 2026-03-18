@@ -1,8 +1,8 @@
 # Task: TikTok-Style Short Video Application
 
 ## Plan
-- [x] Database Setup (Supabase)
-  - [x] Initialize Supabase
+- [x] Database Setup (Firebase)
+  - [x] Initialize Firebase
   - [x] Create tables: profiles, videos, likes, comments, follows
   - [x] Set up triggers for profile sync
   - [x] Create storage buckets for videos and avatars
@@ -15,7 +15,7 @@
     - [x] Scrolling logic
   - [x] Implement Video Upload
     - [x] Video recording/upload interface
-    - [x] Supabase Storage integration
+    - [x] Firebase Storage integration
   - [x] Implement Profile Page
     - [x] User info display
     - [x] User's video grid

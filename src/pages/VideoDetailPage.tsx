@@ -55,7 +55,7 @@ export const VideoDetailPage: React.FC = () => {
     setSubmitting(true);
     try {
       const { error } = await api.addComment({
-        user_id: user.id,
+        user_id: user.uid,
         video_id: videoId,
         content: commentText.trim()
       });

@@ -17,7 +17,7 @@
 
 - **Frontend**: React + TypeScript + Vite
 - **UI Framework**: shadcn/ui + Tailwind CSS
-- **Backend**: Supabase (Database + Storage + Auth)
+- **Backend**: Firebase (Database + Storage + Auth)
 - **Routing**: React Router
 - **State Management**: React Context + Hooks
 
@@ -43,7 +43,7 @@ pnpm install
 
 3. إعداد متغيرات البيئة:
 ```bash
-# يتم توفير ملف .env تلقائياً مع بيانات Supabase
+# يتم توفير ملف .env تلقائياً مع بيانات Firebase
 ```
 
 4. تشغيل التطبيق:

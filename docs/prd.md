@@ -64,13 +64,28 @@ A TikTok-like web application that allows users to browse short videos, record a
 - Video recording or upload interface
 - Publishing options
 
-## 4. GitHub Integration
+## 4. Firebase Integration
 
-### 4.1 Repository Setup
+### 4.1 Firebase Configuration
+- Create firebase.js file with Firebase configuration
+- Initialize Firebase in the application
+
+### 4.2 Firebase Services
+- Enable Firebase Authentication for user login and registration
+- Enable Firestore for data storage (user profiles, videos, comments, likes, followers)
+- Enable Firebase Storage for video file storage
+
+### 4.3 Implementation Requirements
+- Ensure all Firebase services are properly integrated
+- Verify that authentication, Firestore, and storage work correctly in the app
+
+## 5. GitHub Integration
+
+### 5.1 Repository Setup
 - Push the full project to the GitHub repository medo-app
 - Commit all files and push them to the main branch
 
-### 4.2 Project Export and Updates
+### 5.2 Project Export and Updates
 - Enable project export from GitHub
 - Enable project updates from GitHub
 - Maintain version control for all code changes

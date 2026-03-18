@@ -1,21 +1,22 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { supabase } from '@/db/supabase';
-import type { User } from '@supabase/supabase-js';
+import { auth, db } from '@/lib/firebase';
+import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as firebaseSignOut, type User } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import type { Profile } from '@/types';
 import { toast } from 'sonner';
 
 export async function getProfile(userId: string): Promise<Profile | null> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .maybeSingle();
-
-  if (error) {
+  try {
+    const docRef = doc(db, 'profiles', userId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data() as Profile;
+    }
+    return null;
+  } catch (error) {
     console.error('فشل في جلب بيانات الملف الشخصي:', error);
     return null;
   }
-  return data;
 }
 
 interface AuthContextType {
@@ -41,50 +42,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const profileData = await getProfile(user.id);
+    const profileData = await getProfile(user.uid);
     setProfile(profileData);
   };
 
   useEffect(() => {
-    supabase
-      .auth
-      .getSession()
-      .then(({ data: { session } }) => {
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          getProfile(session.user.id).then(setProfile);
-        }
-      })
-      .catch(error => {
-        toast.error(`فشل في جلب بيانات المستخدم: ${error.message}`);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        getProfile(session.user.id).then(setProfile);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        const profileData = await getProfile(currentUser.uid);
+        setProfile(profileData);
       } else {
         setProfile(null);
       }
+      setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => unsubscribe();
   }, []);
 
   const signInWithUsername = async (username: string, password: string) => {
     try {
       const email = `${username}@miaoda.com`;
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
+      await signInWithEmailAndPassword(auth, email, password);
       return { error: null };
     } catch (error: any) {
+      toast.error(`فشل تسجيل الدخول: ${error.message}`);
       return { error };
     }
   };
@@ -97,20 +80,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const email = `${username}@miaoda.com`;
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const newUser = userCredential.user;
 
-      if (error) throw error;
+      // Create profile in Firestore
+      const newProfile: Profile = {
+        id: newUser.uid,
+        username,
+        email,
+        avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
+        bio: '',
+        role: 'user',
+        created_at: new Date().toISOString()
+      };
+
+      await setDoc(doc(db, 'profiles', newUser.uid), newProfile);
+      setProfile(newProfile);
+
       return { error: null };
     } catch (error: any) {
+      toast.error(`فشل التسجيل: ${error.message}`);
       return { error };
     }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    await firebaseSignOut(auth);
     setUser(null);
     setProfile(null);
   };
